@@ -679,6 +679,9 @@ export class PostService {
 		const posts = this.postRepository
 			.createQueryBuilder('post')
 			.leftJoinAndSelect('post.user', 'user')
+			.leftJoinAndSelect('post.tags', 'tags')
+			.leftJoinAndSelect('post.category', 'category')
+			.leftJoinAndSelect('post.subcategory', 'subcategory')
 			.where(
 				'MATCH(post.title, post.excerpt, post.content) AGAINST(:searchWord IN BOOLEAN MODE)',
 				{
@@ -729,7 +732,10 @@ export class PostService {
 		try {
 			const savedPosts = await this.savedPostRepository.find({
 				where: { user: { id: reqUser.id } },
-				relations: ['post'],
+				relations: ['post', 'post.tags'],
+				order: {
+					id: 'DESC',
+				},
 			});
 
 			return plainToInstance(FindPopularPostMinRes, savedPosts);

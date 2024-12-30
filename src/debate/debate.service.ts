@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateDebateReq } from './dto/debate.dto';
 import { Debate } from './entities/debate.entity';
+import { TooManyDebates } from './exceptions/TooManyDebates.exception';
 import { TooManyDiscussorException } from './exceptions/TooManyDiscussor.exception';
 
 @Injectable()
@@ -14,6 +15,12 @@ export class DebateService {
 
 	async createDebate(createDebateReq: CreateDebateReq) {
 		try {
+			// 총 방 개수 제한
+			const debatesCount = await this.debateRepository.count();
+			if (debatesCount >= 10) {
+				throw new TooManyDebates();
+			}
+
 			const {
 				title,
 				content,
@@ -32,7 +39,7 @@ export class DebateService {
 
 			const timer = setTimeout(() => {
 				this.deleteDebate(debateId);
-			}, 10000);
+			}, 1000000);
 
 			return debateId;
 		} catch (error) {
