@@ -299,4 +299,18 @@ export class UserService {
 			throw error;
 		}
 	}
+
+	async findNicknameById(id: number) {
+		try {
+			const users = await this.userRepository.find({
+				where: {
+					id: id,
+				},
+			});
+			const user = users[0];
+			return user.nickname;
+		} catch (error) {
+			throw error;
+		}
+	}
 }

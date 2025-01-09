@@ -11,6 +11,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { DebateService } from 'src/debate/debate.service';
 import { TooManyDiscussorException } from 'src/debate/exceptions/TooManyDiscussor.exception';
+import { UserService } from 'src/user/user.service';
 
 @WebSocketGateway({
 	cors: {
@@ -23,7 +24,10 @@ export class DebateChatGateway
 	@WebSocketServer()
 	server: Server;
 
-	constructor(private readonly debateService: DebateService) {}
+	constructor(
+		private readonly debateService: DebateService,
+		private readonly userService: UserService,
+	) {}
 
 	private clientUserMap = new Map<
 		string,
@@ -48,11 +52,16 @@ export class DebateChatGateway
 	@SubscribeMessage('join')
 	async handleJoin(
 		@MessageBody()
-		payload: { userId: number; userNickname: string; roomId: string },
+		payload: { userId: number; roomId: string },
 		@ConnectedSocket() client: Socket,
 	) {
 		try {
-			const { userId, userNickname, roomId } = payload;
+			const { userId, roomId } = payload;
+
+			client.join(roomId);
+
+			const userNickname =
+				await this.userService.findNicknameById(userId);
 
 			this.clientUserMap.set(client.id, { userId, userNickname });
 
@@ -62,14 +71,13 @@ export class DebateChatGateway
 			const userCount = users.length;
 			await this.debateService.updateDiscussantCount(
 				Number(roomId),
-				userCount + 1,
+				userCount,
 			);
 
 			const usersInfo = users.map((socketId) =>
 				this.clientUserMap.get(socketId),
 			);
 
-			client.join(roomId);
 			this.server.to(roomId).emit('users', {
 				userId,
 				userNickname,
@@ -89,11 +97,13 @@ export class DebateChatGateway
 	@SubscribeMessage('leave')
 	async handleLeave(
 		@MessageBody()
-		payload: { userId: number; userNickname: string; roomId: string },
+		payload: { userId: number; roomId: string },
 		@ConnectedSocket() client: Socket,
 	) {
 		try {
-			const { userId, userNickname, roomId } = payload;
+			const { userId, roomId } = payload;
+
+			const userNickname = this.clientUserMap.get(client.id).userNickname;
 
 			const users = Array.from(
 				this.server.sockets.adapter.rooms.get(roomId) || [],
@@ -108,9 +118,15 @@ export class DebateChatGateway
 			const usersInRoom = Array.from(
 				this.server.sockets.adapter.rooms.get(roomId) || [],
 			);
-			this.server
-				.to(roomId)
-				.emit('users', { userId, userNickname, type: 'leave' });
+			const usersInfo = usersInRoom.map((socketId) =>
+				this.clientUserMap.get(socketId),
+			);
+			this.server.to(roomId).emit('users', {
+				userId,
+				userNickname,
+				type: 'leave',
+				joiningUsers: usersInfo,
+			});
 			console.log(
 				`Client disconnected handleLeave: ${client.id}, ${roomId}`,
 			);
@@ -124,17 +140,19 @@ export class DebateChatGateway
 		@MessageBody()
 		payload: {
 			userId: number;
-			userNickname: string;
 			roomId: string;
 			message: string;
 		},
 		@ConnectedSocket() client: Socket,
 	) {
-		const { userId, userNickname, roomId, message } = payload;
+		const { userId, roomId, message } = payload;
+
+		const userNickname = this.clientUserMap.get(client.id).userNickname;
 
 		this.server
 			.to(roomId)
 			.emit('message', { userId, userNickname, message, type: 'msg' });
+
 		console.log(`message: ${userNickname}, ${roomId}, ${message}`);
 	}
 }

@@ -29,4 +29,10 @@ export class DebateController {
 	async findDebates() {
 		return this.debateService.findDebates();
 	}
+
+	@UseGuards(AuthGuard)
+	@Get('/time')
+	async getLeftMinutesById(@Query('id') id: number) {
+		return this.debateService.getLeftMinutesById(id);
+	}
 }

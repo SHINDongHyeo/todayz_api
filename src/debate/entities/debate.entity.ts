@@ -35,6 +35,9 @@ export class Debate {
 	@Column({ type: 'int', default: 10 })
 	maxDiscussantCount: number;
 
+	@Column({ type: 'int', default: 30 })
+	leftMinutes: number;
+
 	@ManyToOne(() => Category, (category) => category.posts)
 	category: Category;
 	@Column()

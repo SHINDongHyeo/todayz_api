@@ -28,20 +28,26 @@ export class DebateService {
 				subcategoryId,
 				maxDiscussantCount,
 			} = createDebateReq;
-			const insertResponse = await this.debateRepository.insert({
+			const debate = this.debateRepository.create({
 				title,
 				content,
 				categoryId,
 				subcategoryId,
 				maxDiscussantCount,
 			});
-			const debateId = insertResponse.identifiers[0].id;
+			const savedDebate = await this.debateRepository.save(debate);
 
-			const timer = setTimeout(() => {
-				this.deleteDebate(debateId);
-			}, 1000000);
+			const timer = setTimeout(async () => {
+				await this.deleteDebate(savedDebate.id);
+			}, savedDebate.leftMinutes * 60000);
 
-			return debateId;
+			const countDown = setInterval(async () => {
+				await this.debateRepository.update(savedDebate.id, {
+					leftMinutes: () => 'leftMinutes - 1',
+				});
+			}, 60000);
+
+			return savedDebate.id;
 		} catch (error) {
 			throw error;
 		}
@@ -83,6 +89,20 @@ export class DebateService {
 				{ id: debateId },
 				{ discussantCount: discussantCount },
 			);
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	async getLeftMinutesById(id: number) {
+		try {
+			const debates = await this.debateRepository.find({
+				where: {
+					id: id,
+				},
+			});
+			const debate = debates[0];
+			return debate.leftMinutes;
 		} catch (error) {
 			throw error;
 		}
