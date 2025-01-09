@@ -45,6 +45,9 @@ export class DebateService {
 				await this.debateRepository.update(savedDebate.id, {
 					leftMinutes: () => 'leftMinutes - 1',
 				});
+				if (debate.leftMinutes <= 0) {
+					clearInterval(countDown);
+				}
 			}, 60000);
 
 			return savedDebate.id;
