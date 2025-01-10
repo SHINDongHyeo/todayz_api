@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppModule } from './app.module';
 import LoggingInterceptor from './_common/interceptor/logging.interceptor';
 
@@ -28,6 +29,10 @@ async function bootstrap() {
 		allowedHeaders: 'Content-Type, Authorization',
 		credentials: true,
 	});
+
+	// 웹 소켓
+	app.useWebSocketAdapter(new IoAdapter(app));
+
 	await app.listen(appPort);
 }
 bootstrap();

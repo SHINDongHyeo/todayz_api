@@ -17,6 +17,7 @@ import { UserService } from 'src/user/user.service';
 	cors: {
 		origin: '*',
 	},
+	path: '/socket.io',
 })
 export class DebateChatGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
