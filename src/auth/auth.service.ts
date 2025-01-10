@@ -128,7 +128,7 @@ export class AuthService {
 						grant_type: 'authorization_code',
 						client_id:
 							this.configService.get<string>('KAKAO_CLIENT_ID'),
-						redirect_uri: 'http://localhost:2999/sign-in/kakao',
+						redirect_uri: `${this.configService.get<string>('FRONT_BASE_URL')}/sign-in/kakao`,
 						code: token,
 					}),
 				},
@@ -187,7 +187,7 @@ export class AuthService {
 						client_secret: this.configService.get<string>(
 							'GOOGLE_CLIENT_SECRET',
 						),
-						redirect_uri: 'http://localhost:2999/sign-in/google',
+						redirect_uri: `${this.configService.get<string>('FRONT_BASE_URL')}/sign-in/google`,
 						code: token,
 					}),
 				},

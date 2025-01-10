@@ -23,7 +23,7 @@ async function bootstrap() {
 
 	// CORS
 	app.enableCors({
-		origin: 'http://localhost:2999',
+		origin: configService.get<string>('FRONT_BASE_URL'),
 		methods: 'GET, POST, PUT, PATCH, DELETE',
 		allowedHeaders: 'Content-Type, Authorization',
 		credentials: true,
