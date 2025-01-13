@@ -171,6 +171,10 @@ export class UpdateUserReq {
 	@IsString()
 	@IsOptional()
 	introduction: string;
+
+	@IsString()
+	@IsOptional()
+	profileImageUrl: string;
 }
 
 export class UserWithImageRes {
