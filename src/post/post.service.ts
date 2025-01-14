@@ -308,41 +308,50 @@ export class PostService {
 			});
 			const post = posts[0];
 
+			// 로그인 vs 비로그인
 			let newPost = {};
+			if (reqUser) {
+				const likePosts = await this.likePostRepository.find({
+					where: {
+						post: { id: id },
+						user: { id: reqUser.id },
+					},
+				});
+				let isUserLikeThis = false;
+				if (likePosts.length !== 0) {
+					isUserLikeThis = true;
+				} else {
+					isUserLikeThis = false;
+				}
 
-			const likePosts = await this.likePostRepository.find({
-				where: {
-					post: { id: id },
-					user: { id: reqUser.id },
-				},
-			});
-			let isUserLikeThis = false;
-			if (likePosts.length !== 0) {
-				isUserLikeThis = true;
+				const savedPosts = await this.savedPostRepository.find({
+					where: {
+						post: { id: id },
+						user: { id: reqUser.id },
+					},
+				});
+				let isUserSaveThis = false;
+				if (savedPosts.length !== 0) {
+					isUserSaveThis = true;
+				} else {
+					isUserSaveThis = false;
+				}
+
+				const isSubscribed = await this.userService.isSubscribed(
+					reqUser.id,
+					post.user.id,
+				);
+
+				newPost = {
+					...post,
+					isUserLikeThis,
+					isUserSaveThis,
+					isSubscribed,
+				};
+				return newPost;
 			} else {
-				isUserLikeThis = false;
+				return post;
 			}
-
-			const savedPosts = await this.savedPostRepository.find({
-				where: {
-					post: { id: id },
-					user: { id: reqUser.id },
-				},
-			});
-			let isUserSaveThis = false;
-			if (savedPosts.length !== 0) {
-				isUserSaveThis = true;
-			} else {
-				isUserSaveThis = false;
-			}
-
-			const isSubscribed = await this.userService.isSubscribed(
-				reqUser.id,
-				post.user.id,
-			);
-
-			newPost = { ...post, isUserLikeThis, isUserSaveThis, isSubscribed };
-			return newPost;
 		} catch (error) {
 			throw error;
 		}
@@ -467,28 +476,34 @@ export class PostService {
 				withDeleted: true,
 			});
 
-			return comments.map((comment) => {
-				if (comment.deletedAt) {
-					const { content, ...rest } = comment;
+			// 로그인 vs 비로그인
+			if (reqUser) {
+				return comments.map((comment) => {
+					if (comment.deletedAt) {
+						const { content, ...rest } = comment;
+						const likedByCurrentUser = comment.likeComments.some(
+							(likeComment) =>
+								likeComment?.user?.id === reqUser.id,
+						);
+
+						return {
+							...rest,
+							likedByCurrentUser,
+						};
+					}
+
 					const likedByCurrentUser = comment.likeComments.some(
 						(likeComment) => likeComment?.user?.id === reqUser.id,
 					);
 
 					return {
-						...rest,
+						...comment,
 						likedByCurrentUser,
 					};
-				}
-
-				const likedByCurrentUser = comment.likeComments.some(
-					(likeComment) => likeComment?.user?.id === reqUser.id,
-				);
-
-				return {
-					...comment,
-					likedByCurrentUser,
-				};
-			});
+				});
+			} else {
+				return comments;
+			}
 		} catch (error) {
 			throw error;
 		}

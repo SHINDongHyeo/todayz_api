@@ -39,7 +39,7 @@ export class PostController {
 	}
 
 	// 게시물
-	@UseGuards(AuthGuard)
+	// @UseGuards(AuthGuard)
 	@Get()
 	async findPosts(
 		@Query('offset', ParseIntPipe) offset: number,
@@ -98,7 +98,7 @@ export class PostController {
 	}
 
 	// 카테고리
-	@UseGuards(AuthGuard)
+	// @UseGuards(AuthGuard)
 	@Get('category')
 	async findCategories() {
 		return await this.postService.findCategories();
@@ -163,7 +163,7 @@ export class PostController {
 		return plainToInstance(FindPostMinRes, posts);
 	}
 
-	@UseGuards(AuthGuard)
+	// @UseGuards(AuthGuard)
 	@Get(':id/comment')
 	async findComments(@Req() req: any, @Param('id', ParseIntPipe) id: number) {
 		const comments = await this.postService.findComments(req.user, id);
@@ -185,7 +185,7 @@ export class PostController {
 		return plainToInstance(FindCommentsRes, comment);
 	}
 
-	@UseGuards(AuthGuard)
+	// @UseGuards(AuthGuard)
 	@Patch(':id/view')
 	async upPostViewCount(
 		@Req() req: any,
@@ -232,7 +232,7 @@ export class PostController {
 		return;
 	}
 
-	@UseGuards(AuthGuard)
+	// @UseGuards(AuthGuard)
 	@Get(':id')
 	async findPost(@Req() req: any, @Param('id', ParseIntPipe) id: number) {
 		return plainToInstance(
