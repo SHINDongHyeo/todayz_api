@@ -9,7 +9,10 @@ import {
 	ParseIntPipe,
 	UseGuards,
 	Req,
+	UseInterceptors,
+	UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { plainToInstance } from 'class-transformer';
 import { AuthGuard } from 'src/_common/guards/jwt/auth.guard';
 
@@ -87,11 +90,13 @@ export class UserController {
 
 	@UseGuards(AuthGuard)
 	@Patch(':id')
+	@UseInterceptors(FileInterceptor('file'))
 	async updateUser(
 		@Param('id', ParseIntPipe) id: number,
 		@Body() updateUserReq: UpdateUserReq,
+		@UploadedFile() file: Express.Multer.File,
 	): Promise<FindUserRes> {
-		return this.userService.updateUser(id, updateUserReq);
+		return this.userService.updateUser(id, updateUserReq, file);
 	}
 
 	@UseGuards(AuthGuard)

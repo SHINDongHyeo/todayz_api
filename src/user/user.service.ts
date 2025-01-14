@@ -19,16 +19,41 @@ import {
 import { SubscribeInfo } from './entities/subscribeInfo.entity';
 import { User } from './entities/user.entity';
 import { UserRank, UserSocialProvider } from './interfaces/user.interface';
+import {
+	S3Client,
+	PutObjectCommand,
+	DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
+import { v4 as uuidv4 } from 'uuid';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
+	private readonly s3Client: S3Client;
+	private readonly bucketName: string;
+
 	constructor(
+		private readonly configService: ConfigService,
 		@InjectRepository(User)
 		private readonly userRepository: Repository<User>,
 		@InjectRepository(SubscribeInfo)
 		private readonly subscribeInfoRepository: Repository<SubscribeInfo>,
 		private readonly dataSource: DataSource,
-	) {}
+	) {
+		// ConfigService에서 값을 읽어와 초기화
+		this.s3Client = new S3Client({
+			region:
+				this.configService.get<string>('AWS_REGION') ||
+				'ap-northeast-2',
+			credentials: {
+				accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY'),
+				secretAccessKey:
+					this.configService.get<string>('AWS_SECRET_KEY'),
+			},
+		});
+		this.bucketName =
+			this.configService.get<string>('AWS_BUCKET_NAME') || 'todayz';
+	}
 
 	async isThereUnreadNotification(reqUser: JwtPayload) {
 		try {
@@ -109,16 +134,57 @@ export class UserService {
 		}
 	}
 
-	async updateUser(id: number, updateUserReq: UpdateUserReq) {
+	async updateUser(
+		id: number,
+		updateUserReq: UpdateUserReq,
+		file: Express.Multer.File,
+	) {
 		try {
-			const user = await this.userRepository.update(
-				{ id },
-				updateUserReq,
-			);
-			if (!user) {
-				throw new NotFoundException(`해당 유저가 발견되지 않습니다`);
+			if (file) {
+				// 커스텀 사진 s3에 업로드
+				const key = `profile/${uuidv4()}-${file.originalname}`;
+
+				const params = {
+					Bucket: this.bucketName,
+					Key: key,
+					Body: file.buffer,
+					ContentType: file.mimetype,
+				};
+
+				try {
+					const s3Response = await this.s3Client.send(
+						new PutObjectCommand(params),
+					);
+
+					const user = await this.userRepository.update(
+						{ id },
+						{
+							nickname: updateUserReq.nickname,
+							profileImageUrl: `https://${this.bucketName}.s3.${this.configService.get('AWS_REGION')}.amazonaws.com/${key}`,
+						},
+					);
+					if (!user) {
+						throw new NotFoundException(
+							`해당 유저가 발견되지 않습니다`,
+						);
+					}
+					return plainToInstance(FindUserRes, user);
+				} catch (error) {
+					console.error('S3 upload error:', error);
+					throw new Error('파일 업로드 실패');
+				}
+			} else {
+				const user = await this.userRepository.update(
+					{ id },
+					updateUserReq,
+				);
+				if (!user) {
+					throw new NotFoundException(
+						`해당 유저가 발견되지 않습니다`,
+					);
+				}
+				return plainToInstance(FindUserRes, user);
 			}
-			return plainToInstance(FindUserRes, user);
 		} catch (error) {
 			throw error;
 		}
