@@ -16,6 +16,7 @@ import {
 import { newRandomNick } from 'random-korean-nickname';
 import { User } from 'src/user/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
+import { IssueJWTRes } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +30,7 @@ export class AuthService {
 	) {}
 
 	// JWT 발급
-	async issueJwt(id: number, email: string) {
+	async issueJwt(id: number, email: string): Promise<IssueJWTRes> {
 		const payload: JwtPayload = {
 			id: id,
 			email: email,
@@ -58,21 +59,21 @@ export class AuthService {
 	}
 
 	// JWT 인증
-	async validateJwt(accessToken: string, refreshToken: string) {
-		try {
-			this.accessTokenJwtService.verify(accessToken);
-			return;
-		} catch (error) {
-			try {
-				this.refreshTokenJwtService.verify(refreshToken);
-				return;
-			} catch (error) {
-				throw new UnauthorizedException(
-					'access token, refresh token 모두 유효하지 않습니다',
-				);
-			}
-		}
-	}
+	// async validateJwt(accessToken: string, refreshToken: string) {
+	// 	try {
+	// 		this.accessTokenJwtService.verify(accessToken);
+	// 		return;
+	// 	} catch (error) {
+	// 		try {
+	// 			this.refreshTokenJwtService.verify(refreshToken);
+	// 			return;
+	// 		} catch (error) {
+	// 			throw new UnauthorizedException(
+	// 				'access token, refresh token 모두 유효하지 않습니다',
+	// 			);
+	// 		}
+	// 	}
+	// }
 
 	// 로그인
 	async signIn(token: string, provider: UserSocialProvider) {

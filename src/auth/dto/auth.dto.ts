@@ -4,6 +4,7 @@ import {
 	IsEnum,
 	IsInt,
 	IsNotEmpty,
+	IsNumber,
 	IsString,
 } from 'class-validator';
 import {
@@ -11,6 +12,23 @@ import {
 	UserSocialProvider,
 } from 'src/user/interfaces/user.interface';
 
+export class IssueJWTRes {
+	@IsString()
+	@IsNotEmpty()
+	accessToken: string;
+
+	@IsString()
+	@IsNotEmpty()
+	refreshToken: string;
+
+	@IsNumber()
+	@IsNotEmpty()
+	id: number;
+
+	@IsEmail()
+	@IsNotEmpty()
+	email: string;
+}
 export class ReissueJwtReq {
 	@IsString()
 	@IsNotEmpty()
