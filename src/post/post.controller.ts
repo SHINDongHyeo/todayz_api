@@ -82,7 +82,7 @@ export class PostController {
 		);
 	}
 
-	@UseGuards(AuthGuard)
+	// @UseGuards(AuthGuard)
 	@Get('search')
 	async searchPosts(
 		@Query('offset', ParseIntPipe) offset: number,
