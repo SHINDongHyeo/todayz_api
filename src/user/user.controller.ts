@@ -69,7 +69,7 @@ export class UserController {
 		return await this.userService.findMyFollowings(req.user, id);
 	}
 
-	@UseGuards(AuthGuard)
+	// @UseGuards(AuthGuard)
 	@Get(':id')
 	async findUser(
 		@Req() req: any,
@@ -77,7 +77,7 @@ export class UserController {
 	): Promise<FindUserRes> {
 		const user = await this.userService.findUser(id);
 
-		if (req.user.id === user.id) {
+		if (req.user?.id === user.id) {
 			return plainToInstance(FindUserRes, { ...user });
 		} else {
 			const isSubscribed = await this.userService.isSubscribed(

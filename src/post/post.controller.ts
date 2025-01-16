@@ -153,7 +153,7 @@ export class PostController {
 		return await this.postService.removeComment(req.user, id);
 	}
 
-	@UseGuards(AuthGuard)
+	// @UseGuards(AuthGuard)
 	@Get('user/:id')
 	async getPostsOfUser(
 		@Req() req: any,
