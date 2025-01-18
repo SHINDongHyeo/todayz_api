@@ -58,7 +58,7 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         port: 22
         script: |
-          sudo su
+          touch EC2test
           docker exec -it backend-main /bin/bash
           touch CDtest
         
