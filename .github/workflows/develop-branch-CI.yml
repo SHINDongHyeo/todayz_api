@@ -1,0 +1,34 @@
+name: develop branch CI
+
+on:
+    push:
+        branches: ['develop']
+    pull_request:
+        branches: ['develop']
+
+jobs:
+    test-build:
+        runs-on: ubuntu-latest
+
+        steps:
+            # 1단계: 코드 체크아웃
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # 2단계: Node.js 설치 (yarn을 사용)
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18.20.4'
+
+            # 3단계: yarn 설치
+            - name: Install dependencies
+              run: yarn install
+
+            # 4단계: 테스트 실행
+            - name: Run tests
+              run: yarn test
+
+            # 5단계: 빌드 실행
+            - name: Build project
+              run: yarn build
