@@ -58,8 +58,6 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         port: 22
         script: |
-          sudo su
           docker exec -it backend-main /bin/bash
-          git pull origin master
-          yarn install
+          touch CDtest
         
