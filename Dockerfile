@@ -12,6 +12,4 @@ RUN yarn set version 3.6.4
 
 RUN yarn install
 
-RUN NODE_ENV=production yarn start
-
 EXPOSE 3000
