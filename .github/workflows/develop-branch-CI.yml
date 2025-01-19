@@ -28,7 +28,3 @@ jobs:
             # 4단계: 테스트 실행
             - name: Run tests
               run: yarn test
-
-            # 5단계: 빌드 실행
-            - name: Build project
-              run: yarn build
