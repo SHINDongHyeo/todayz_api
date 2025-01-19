@@ -8,6 +8,8 @@ RUN npm install -g npm@10.8.1
 
 RUN npm install -g @nestjs/cli
 
+RUN npm install -g yarn@3.6.4
+
 RUN yarn install
 
 RUN NODE_ENV=production yarn start
