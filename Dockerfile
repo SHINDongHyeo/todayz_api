@@ -12,6 +12,6 @@ RUN npm install -g @nestjs/cli
 
 # RUN yarn set version 3.6.4
 
-# RUN yarn install
+RUN yarn install
 
 EXPOSE 3000
