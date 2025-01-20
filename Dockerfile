@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 COPY yarn.lock package.json ./
 
-RUN yarn install
+RUN yarn install --cache-folder ./.yarn/cache
 
 RUN if [ -d "/usr/src/app/.yarn/cache" ]; then echo ".yarn/cache folder exists"; else echo ".yarn/cache folder does not exist"; fi
 
