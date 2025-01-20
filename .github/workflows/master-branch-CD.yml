@@ -34,12 +34,14 @@ jobs:
                   docker push shindong3/backend-main:latest
                   docker push shindong3/backend-main:$GITHUB_SHA
 
-        # # 2단계: EC2 서버로 배포 실행
-        # - name: Deploy to EC2
-        #   uses: appleboy/ssh-action@v0.1.6
-        #   with:
-        #     host: ${{ secrets.EC2_HOST }}
-        #     username: ${{ secrets.EC2_USERNAME }}
-        #     key: ${{ secrets.EC2_PRIVATE_KEY }}
-        #     port: 22
-        #     script: |
+            # 5단계: EC2 서버로 배포 실행
+            - name: Deploy to EC2
+              uses: appleboy/ssh-action@v0.1.6
+              with:
+                  host: ${{ secrets.EC2_HOST }}
+                  username: ${{ secrets.EC2_USERNAME }}
+                  key: ${{ secrets.EC2_PRIVATE_KEY }}
+                  port: 22
+                  script: |
+                      docker-compose pull backend-main
+                      docker-compose up -d --no-deps backend-main
