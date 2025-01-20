@@ -7,7 +7,7 @@ COPY . .
 
 RUN yarn -v
 
-RUN yarn install --cache-folder ./.yarn/cache
+RUN yarn install
 
 
 EXPOSE 3000
