@@ -8,6 +8,7 @@ RUN npm install -g npm@10.8.1
 
 RUN npm install -g @nestjs/cli
 
+RUN yarn -v
 # RUN npm uninstall -g yarn
 
 # RUN yarn set version 3.6.4
