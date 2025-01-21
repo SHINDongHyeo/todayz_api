@@ -12,6 +12,7 @@ import {
 	ParseIntPipe,
 	DefaultValuePipe,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { plainToInstance } from 'class-transformer';
 import { AuthGuard } from 'src/_common/guards/jwt/auth.guard';
 import {

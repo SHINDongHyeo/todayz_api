@@ -6,7 +6,6 @@ import {
 	Inject,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
