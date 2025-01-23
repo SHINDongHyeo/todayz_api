@@ -33,6 +33,11 @@ import { InitSeed } from './init-seed';
 				password: configService.get<string>('DB_PASSWORD'),
 				database: configService.get<string>('DB_DATABASE'),
 				logging: true,
+				extra: {
+					connectionLimit: 15,
+					maxIdle: 15,
+					idleTimeout: 60000,
+				},
 				entities: [
 					User,
 					Post,

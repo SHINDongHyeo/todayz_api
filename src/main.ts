@@ -31,20 +31,20 @@ async function bootstrap() {
 	});
 
 	// Referer
-	app.use((req, res, next) => {
-		const referer = req.headers['referer'];
+	// app.use((req, res, next) => {
+	// 	const referer = req.headers['referer'];
 
-		if (
-			!referer ||
-			!referer.startsWith(configService.get<string>('FRONT_BASE_URL'))
-		) {
-			return res
-				.status(403)
-				.json({ message: 'Forbidden: Invalid Referer' });
-		}
+	// 	if (
+	// 		!referer ||
+	// 		!referer.startsWith(configService.get<string>('FRONT_BASE_URL'))
+	// 	) {
+	// 		return res
+	// 			.status(403)
+	// 			.json({ message: 'Forbidden: Invalid Referer' });
+	// 	}
 
-		next();
-	});
+	// 	next();
+	// });
 
 	// 웹 소켓
 	app.useWebSocketAdapter(new IoAdapter(app));
