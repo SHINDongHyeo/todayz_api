@@ -11,6 +11,7 @@ import { JwtPayload } from 'src/auth/interfaces/auth.interface';
 import { NotificationType } from 'src/notification/interfaces/notification.interface';
 import { NotificationService } from 'src/notification/notification.service';
 import { UserService } from 'src/user/user.service';
+import { RedisService } from 'src/_common/redis/redis.service';
 import { In, LessThan, Repository } from 'typeorm';
 import { CreateCommentReq } from './dto/comment.dto';
 import {
@@ -53,6 +54,7 @@ export class PostService {
 		private readonly likePostRepository: Repository<LikePost>,
 		private readonly userService: UserService,
 		private readonly notificationService: NotificationService,
+		private readonly redisService: RedisService,
 	) {}
 
 	// 포스트
@@ -122,26 +124,16 @@ export class PostService {
 		}
 	}
 
-	async findMyPosts() {
-		try {
-			const posts = await this.postRepository.find({
-				where: {
-					user: { id: 8 },
-					// userId: 8,
-				},
-			});
-			// const posts = await this.postRepository
-			// 	.createQueryBuilder('post')
-			// 	.where('post.userId = :userId', { userId: 8 }) // RelationId를 직접 참조
-			// 	.getMany();
-			return posts;
-		} catch (error) {
-			throw error;
-		}
-	}
-
 	async findPostsLatest(offset: number = 0) {
 		try {
+			// 메모리 캐시 먼저 확인
+			const cachedData = await this.redisService.getValue(
+				`posts:${offset}`,
+			);
+			if (cachedData) {
+				return JSON.parse(cachedData);
+			}
+
 			const [posts, totalCount] = await this.postRepository.findAndCount({
 				order: {
 					createdAt: 'DESC',
@@ -160,6 +152,12 @@ export class PostService {
 				['isFourNextPageExists']: totalCount - (offset + 40) > 0,
 				['isFiveNextPageExists']: totalCount - (offset + 50) > 0,
 			};
+
+			// 메모리 캐시에 저장
+			await this.redisService.setValue(
+				`posts:${offset}`,
+				JSON.stringify(result),
+			);
 			return result;
 		} catch (error) {
 			throw error;

@@ -16,6 +16,7 @@ import { PopularPost } from './entities/popularPost.entity';
 import { SavedPost } from './entities/savedPost.entity';
 import { Inquiry } from '../inquiry/entities/inquiry.entity';
 import { NotificationModule } from 'src/notification/notification.module';
+import { RedisModule } from 'src/_common/redis/redis.module';
 
 @Module({
 	imports: [
@@ -35,6 +36,7 @@ import { NotificationModule } from 'src/notification/notification.module';
 		AccessTokenJwtModule,
 		UserModule,
 		NotificationModule,
+		RedisModule,
 	],
 	controllers: [PostController],
 	providers: [PostService],

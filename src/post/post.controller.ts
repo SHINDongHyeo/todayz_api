@@ -34,11 +34,6 @@ import { PostService } from './post.service';
 export class PostController {
 	constructor(private readonly postService: PostService) {}
 
-	@Get('test')
-	async test() {
-		return await this.postService.findMyPosts();
-	}
-
 	// 게시물
 	// @UseGuards(AuthGuard)
 	@Get()
