@@ -6,6 +6,7 @@ COPY . .
 
 RUN yarn install
 
-EXPOSE 3000
+# 여러 컨테이너 실행으로 컨테이너마다 다른 포트 사용하게 수정
+# EXPOSE 3000
 
 CMD ["yarn", "start"]
