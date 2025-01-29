@@ -44,4 +44,9 @@ jobs:
                   port: 22
                   script: |
                       docker-compose pull backend-main
-                      docker-compose up -d --build
+                      docker-compose up -d api-1 --build
+                      while ! curl -s http://localhost:3000/health; do
+                        echo "Waiting for API-1 to be ready..."
+                        sleep 5
+                      done
+                      docker-compose up -d api-2 --build
