@@ -44,4 +44,4 @@ jobs:
                   port: 22
                   script: |
                       docker-compose pull backend-main
-                      docker-compose up -d --no-deps backend-main
+                      docker-compose up -d --build
