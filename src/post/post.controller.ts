@@ -34,6 +34,12 @@ import { PostService } from './post.service';
 export class PostController {
 	constructor(private readonly postService: PostService) {}
 
+	// 테스트용
+	@Get('test')
+	async test(@Query('testParam') testParam: string) {
+		return await this.postService.test(testParam);
+	}
+
 	// 게시물
 	// @UseGuards(AuthGuard)
 	@Get()

@@ -23,6 +23,24 @@ export class RedisService {
 		return await this.redisClient.get(key);
 	}
 
+	// Redis에서 데이터 삭제하기
+	async deleteValue(key: string) {
+		return await this.redisClient.del(key);
+	}
+
+	// Redis에서 데이터 스캔하기
+	async scanValue(pattern: string): Promise<[string, string[]]> {
+		const [newCursor, keys] = await this.redisClient.scan(
+			0,
+			'MATCH',
+			pattern,
+			'COUNT',
+			100,
+		);
+
+		return [newCursor, keys];
+	}
+
 	// Redis 연결 종료
 	async close(): Promise<void> {
 		await this.redisClient.quit();

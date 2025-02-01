@@ -57,12 +57,24 @@ export class PostService {
 		private readonly redisService: RedisService,
 	) {}
 
+	// test
+	async test(testParam: string) {
+		return await this.redisService.scanValue(testParam);
+	}
+
 	// 포스트
 	async createPost(
 		reqUser: JwtPayload,
 		createPostReq: CreatePostReq,
 	): Promise<Post> {
 		try {
+			// redis 데이터 삭제
+			const [newCursor, keys] =
+				await this.redisService.scanValue('posts:*');
+			for (let key of keys) {
+				await this.redisService.deleteValue(key);
+			}
+
 			const {
 				title,
 				content,
