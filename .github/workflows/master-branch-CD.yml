@@ -43,7 +43,7 @@ jobs:
                   key: ${{ secrets.EC2_PRIVATE_KEY }}
                   port: 22
                   script: |
-                      docker-compose pull backend-main
+                      docker pull shindong3/backend-main:latest
                       docker-compose up -d api-1 --build
                       while ! curl -s http://localhost:3000/health; do
                         echo "Waiting for API-1 to be ready..."
