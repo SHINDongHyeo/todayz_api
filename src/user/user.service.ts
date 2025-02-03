@@ -120,7 +120,7 @@ export class UserService {
 		}
 	}
 
-	async findUserByNickname(nickname: string) {
+	async findUserByNickname(nickname: string): Promise<FindUserRes> {
 		try {
 			const user = await this.userRepository.findOneBy({
 				nickname,

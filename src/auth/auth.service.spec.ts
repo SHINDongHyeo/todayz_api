@@ -1,8 +1,10 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
+import { plainToInstance } from 'class-transformer';
 import { now } from 'moment-timezone';
+import { FindUserRes } from 'src/user/dto/user.dto';
 import {
 	UserRank,
 	UserRole,
@@ -49,7 +51,10 @@ describe('AuthService', () => {
 				},
 				{
 					provide: UserService,
-					useValue: { findUserBySocialIdAndProvider: jest.fn() },
+					useValue: {
+						findUserBySocialIdAndProvider: jest.fn(),
+						findUserByNickname: jest.fn(),
+					},
 				},
 			],
 		}).compile();
@@ -123,5 +128,39 @@ describe('AuthService', () => {
 			id: id,
 			email: email,
 		});
+	});
+
+	it('닉네임 중복 테스트 성공', async () => {
+		jest.spyOn(userService, 'findUserByNickname').mockResolvedValue(
+			plainToInstance(FindUserRes, {
+				id: 1,
+				nickname: 'test',
+				role: UserRole.USER,
+				rank: UserRank.BRONZE,
+				rankPoint: 1,
+				profileImageUrl: 'test',
+				introduction: 'test',
+				subscriberCount: 1,
+				subscribeCount: 1,
+				postCount: 1,
+				commentCount: 1,
+				debateCount: 1,
+				createdAt: new Date(),
+			}),
+		);
+
+		const result = await authService.validateNickname('test');
+
+		expect(result).toEqual({ canUse: false });
+	});
+
+	it('닉네임 중복 테스트 실패', async () => {
+		jest.spyOn(userService, 'findUserByNickname').mockRejectedValue(
+			new NotFoundException(`해당 유저가 발견되지 않습니다`),
+		);
+
+		const result = await authService.validateNickname('test');
+
+		expect(result).toEqual({ canUse: true });
 	});
 });

@@ -37,18 +37,16 @@ export class DebateService {
 			});
 			const savedDebate = await this.debateRepository.save(debate);
 
-			const timer = setTimeout(async () => {
-				await this.deleteDebate(savedDebate.id);
-			}, savedDebate.leftMinutes * 60000);
-
 			const countDown = setInterval(async () => {
 				await this.debateRepository.update(savedDebate.id, {
 					leftMinutes: () => 'leftMinutes - 1',
 				});
-				if (debate.leftMinutes <= 0) {
-					clearInterval(countDown);
-				}
 			}, 60000);
+
+			const timer = setTimeout(async () => {
+				await this.deleteDebate(savedDebate.id);
+				clearInterval(countDown);
+			}, savedDebate.leftMinutes * 60000);
 
 			return savedDebate.id;
 		} catch (error) {
