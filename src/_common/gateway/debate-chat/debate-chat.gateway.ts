@@ -123,13 +123,7 @@ export class DebateChatGateway
 		try {
 			const { userId, roomId } = payload;
 
-			logger.info({
-				level: 'info',
-				type: 'leave',
-				clientId: client.id,
-				userId: userId,
-				roomId: roomId,
-			});
+			client.leave(roomId);
 
 			const userNickname = this.clientUserMap.get(client.id).userNickname;
 
@@ -155,7 +149,13 @@ export class DebateChatGateway
 				joiningUsers: usersInfo,
 			});
 
-			client.leave(roomId);
+			logger.info({
+				level: 'info',
+				type: 'leave',
+				clientId: client.id,
+				userId: userId,
+				roomId: roomId,
+			});
 		} catch (error) {
 			client.emit('error', 'Failed to leave room. Please try again.');
 		}
