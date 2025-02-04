@@ -15,6 +15,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { plainToInstance } from 'class-transformer';
 import { AuthGuard } from 'src/_common/guards/jwt/auth.guard';
+import { OptionalAuthGuard } from 'src/_common/guards/jwt/optionalAuth.guard';
 
 import {
 	CreateUserReq,
@@ -69,7 +70,7 @@ export class UserController {
 		return await this.userService.findMyFollowings(req.user, id);
 	}
 
-	// @UseGuards(AuthGuard)
+	@UseGuards(OptionalAuthGuard)
 	@Get(':id')
 	async findUser(
 		@Req() req: any,
@@ -77,14 +78,27 @@ export class UserController {
 	): Promise<FindUserRes> {
 		const user = await this.userService.findUser(id);
 
-		if (req.user?.id === user.id) {
+		// 로그인 시
+		if (req.user) {
+			// 셀프 프로필
+			if (req.user?.id === user.id) {
+				return plainToInstance(FindUserRes, { ...user });
+			}
+			// 타인 프로필
+			else {
+				const isSubscribed = await this.userService.isSubscribed(
+					req.user?.id,
+					id,
+				);
+				return plainToInstance(FindUserMinRes, {
+					...user,
+					isSubscribed,
+				});
+			}
+		}
+		// 비로그인 시
+		else {
 			return plainToInstance(FindUserRes, { ...user });
-		} else {
-			const isSubscribed = await this.userService.isSubscribed(
-				req.id,
-				id,
-			);
-			return plainToInstance(FindUserMinRes, { ...user, isSubscribed });
 		}
 	}
 
