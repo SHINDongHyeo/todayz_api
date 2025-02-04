@@ -15,7 +15,7 @@ export class RedisService {
 
 	// Redis에 데이터 저장
 	async setValue(key: string, value: string): Promise<string> {
-		return await this.redisClient.set(key, value);
+		return await this.redisClient.set(key, value, 'EX', 3600);
 	}
 
 	// Redis에서 데이터 가져오기
