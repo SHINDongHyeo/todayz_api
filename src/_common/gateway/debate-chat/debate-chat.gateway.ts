@@ -12,6 +12,7 @@ import { Server, Socket } from 'socket.io';
 import { DebateService } from 'src/debate/debate.service';
 import { TooManyDiscussorException } from 'src/debate/exceptions/TooManyDiscussor.exception';
 import { UserService } from 'src/user/user.service';
+import logger from '../../logger/websocket.logger';
 
 @WebSocketGateway({
 	cors: {
@@ -36,18 +37,29 @@ export class DebateChatGateway
 	>();
 
 	afterInit(server: Server) {
-		console.log('WebSocket Gateway Initialized');
+		logger.info({
+			level: 'info',
+			type: 'init',
+		});
 	}
 
 	handleConnection(client: Socket) {
-		console.log(`Client connected: ${client.id}`);
+		logger.info({
+			level: 'info',
+			type: 'connect',
+			clientId: client.id,
+		});
 	}
 
 	handleDisconnect(client: Socket) {
 		client.rooms.forEach((roomId) => {
 			client.leave(roomId);
 		});
-		console.log(`Client disconnected: ${client.id}`);
+		logger.info({
+			level: 'info',
+			type: 'disconnect',
+			clientId: client.id,
+		});
 	}
 
 	@SubscribeMessage('join')
@@ -85,7 +97,14 @@ export class DebateChatGateway
 				type: 'join',
 				joiningUsers: usersInfo,
 			});
-			console.log(`Client connected handleJoin: ${client.id}, ${roomId}`);
+
+			logger.info({
+				level: 'info',
+				type: 'join',
+				clientId: client.id,
+				userId: userId,
+				roomId: roomId,
+			});
 		} catch (error) {
 			if (error instanceof TooManyDiscussorException) {
 				client.emit('error', error.message);
@@ -104,6 +123,14 @@ export class DebateChatGateway
 		try {
 			const { userId, roomId } = payload;
 
+			logger.info({
+				level: 'info',
+				type: 'leave',
+				clientId: client.id,
+				userId: userId,
+				roomId: roomId,
+			});
+
 			const userNickname = this.clientUserMap.get(client.id).userNickname;
 
 			const users = Array.from(
@@ -115,7 +142,6 @@ export class DebateChatGateway
 				userCount - 1,
 			);
 
-			client.leave(roomId);
 			const usersInRoom = Array.from(
 				this.server.sockets.adapter.rooms.get(roomId) || [],
 			);
@@ -128,9 +154,8 @@ export class DebateChatGateway
 				type: 'leave',
 				joiningUsers: usersInfo,
 			});
-			console.log(
-				`Client disconnected handleLeave: ${client.id}, ${roomId}`,
-			);
+
+			client.leave(roomId);
 		} catch (error) {
 			client.emit('error', 'Failed to leave room. Please try again.');
 		}
@@ -154,6 +179,12 @@ export class DebateChatGateway
 			.to(roomId)
 			.emit('message', { userId, userNickname, message, type: 'msg' });
 
-		console.log(`message: ${userNickname}, ${roomId}, ${message}`);
+		logger.info({
+			level: 'info',
+			type: 'message',
+			userId: userId,
+			content: { message: message },
+			roomId: roomId,
+		});
 	}
 }

@@ -25,7 +25,7 @@ const logger = createLogger({
 	transports: [
 		new transports.Console(),
 		new DailyRotateFile({
-			filename: './logs/api/%DATE%.log',
+			filename: './logs/websocket/%DATE%.log',
 			datePattern: 'YYYY-MM-DD',
 			zippedArchive: true,
 			maxSize: '20m',
