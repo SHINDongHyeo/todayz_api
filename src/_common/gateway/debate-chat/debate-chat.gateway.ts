@@ -12,7 +12,7 @@ import { Server, Socket } from 'socket.io';
 import { DebateService } from 'src/debate/debate.service';
 import { TooManyDiscussorException } from 'src/debate/exceptions/TooManyDiscussor.exception';
 import { UserService } from 'src/user/user.service';
-import logger from '../../logger/websocket.logger';
+import { WebsocketLogger } from 'src/_common/logger/websocket.logger';
 
 @WebSocketGateway({
 	cors: {
@@ -23,6 +23,8 @@ import logger from '../../logger/websocket.logger';
 export class DebateChatGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+	private readonly logger = new WebsocketLogger();
+
 	@WebSocketServer()
 	server: Server;
 
@@ -37,14 +39,14 @@ export class DebateChatGateway
 	>();
 
 	afterInit(server: Server) {
-		logger.info({
+		this.logger.log({
 			level: 'info',
 			type: 'init',
 		});
 	}
 
 	handleConnection(client: Socket) {
-		logger.info({
+		this.logger.log({
 			level: 'info',
 			type: 'connect',
 			clientId: client.id,
@@ -55,7 +57,7 @@ export class DebateChatGateway
 		client.rooms.forEach((roomId) => {
 			client.leave(roomId);
 		});
-		logger.info({
+		this.logger.log({
 			level: 'info',
 			type: 'disconnect',
 			clientId: client.id,
@@ -98,7 +100,7 @@ export class DebateChatGateway
 				joiningUsers: usersInfo,
 			});
 
-			logger.info({
+			this.logger.log({
 				level: 'info',
 				type: 'join',
 				clientId: client.id,
@@ -149,7 +151,7 @@ export class DebateChatGateway
 				joiningUsers: usersInfo,
 			});
 
-			logger.info({
+			this.logger.log({
 				level: 'info',
 				type: 'leave',
 				clientId: client.id,
@@ -179,7 +181,7 @@ export class DebateChatGateway
 			.to(roomId)
 			.emit('message', { userId, userNickname, message, type: 'msg' });
 
-		logger.info({
+		this.logger.log({
 			level: 'info',
 			type: 'message',
 			userId: userId,

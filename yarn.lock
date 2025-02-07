@@ -3565,7 +3565,8 @@ __metadata:
     jest: ^29.5.0
     joi: ^17.13.3
     jsonwebtoken: ^9.0.2
-    moment-timezone: ^0.5.46
+    moment: ^2.30.1
+    moment-timezone: ^0.5.47
     mysql2: ^3.11.4
     prettier: ^3.0.0
     random-korean-nickname: ^1.0.14
@@ -8222,16 +8223,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment-timezone@npm:^0.5.46":
-  version: 0.5.46
-  resolution: "moment-timezone@npm:0.5.46"
+"moment-timezone@npm:^0.5.47":
+  version: 0.5.47
+  resolution: "moment-timezone@npm:0.5.47"
   dependencies:
     moment: ^2.29.4
-  checksum: 3974b467a98e5eb5dece66187d251aa0f97b087413c9a6a607b38ae6fa67032e12a107649dd857cfbcc31c194f004eb13ecc9fcd582b6a168a9a19355ec5a2e3
+  checksum: 6288a9d653b902bd913f1dca24426ad71e5a98cd98684139e3ed74e635289e6acde62450735364fd3758d6ac836a1eaab859c08d0252587a377192f25f0bda5a
   languageName: node
   linkType: hard
 
-"moment@npm:^2.29.1, moment@npm:^2.29.4":
+"moment@npm:^2.29.1, moment@npm:^2.29.4, moment@npm:^2.30.1":
   version: 2.30.1
   resolution: "moment@npm:2.30.1"
   checksum: 859236bab1e88c3e5802afcf797fc801acdbd0ee509d34ea3df6eea21eb6bcc2abd4ae4e4e64aa7c986aa6cba563c6e62806218e6412a765010712e5fa121ba6

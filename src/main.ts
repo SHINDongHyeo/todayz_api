@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppModule } from './app.module';
-import LoggingInterceptor from './_common/interceptor/logging.interceptor';
+import { LoggingInterceptor } from './_common/interceptor/logging.interceptor';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);

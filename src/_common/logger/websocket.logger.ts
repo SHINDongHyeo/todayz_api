@@ -1,37 +1,65 @@
-import { createLogger, format, transports } from 'winston';
+import { LoggerService } from '@nestjs/common';
+import * as fs from 'fs';
 import moment from 'moment-timezone';
-import DailyRotateFile from 'winston-daily-rotate-file';
+import * as path from 'path';
 
-const customFormat = format.printf(({ message, timestamp }) => {
-	const msg = typeof message === 'object' ? message : { message };
-	return JSON.stringify(
-		{
-			timestamp,
-			...msg,
-		},
-		null,
-		2,
-	);
-});
+export class WebsocketLogger implements LoggerService {
+	constructor() {
+		moment.tz.setDefault('Asia/Seoul');
+	}
+	private getLogFilePath(): string {
+		const logDir = path.join(__dirname, '../../../logs/websocket');
+		if (!fs.existsSync(logDir)) {
+			fs.mkdirSync(logDir, { recursive: true }); // logs 폴더 없으면 생성
+		}
+		const currentDate = moment().format('YYYY-MM-DD');
+		return path.join(logDir, `${currentDate}.log`);
+	}
 
-const logger = createLogger({
-	format: format.combine(
-		format.timestamp({
-			format: () =>
-				moment().tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss'),
-		}),
-		customFormat,
-	),
-	transports: [
-		new transports.Console(),
-		new DailyRotateFile({
-			filename: './logs/websocket/%DATE%.log',
-			datePattern: 'YYYY-MM-DD',
-			zippedArchive: true,
-			maxSize: '20m',
-			maxFiles: '14d',
-		}),
-	],
-});
+	private writeLog(logObject: Record<string, any>) {
+		const logFilePath = this.getLogFilePath();
+		const logJson = JSON.stringify(logObject) + '\n'; // JSON 형태로 변환
+		fs.appendFileSync(logFilePath, logJson, 'utf8'); // 파일에 추가
+	}
 
-export default logger;
+	log(message: Record<string, any>) {
+		this.writeLog({
+			level: 'log',
+			timestamp: moment().format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+			...message,
+		});
+	}
+
+	error(message: Record<string, any>, trace?: string) {
+		this.writeLog({
+			level: 'error',
+			timestamp: moment().format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+			trace,
+			...message,
+		});
+	}
+
+	warn(message: Record<string, any>) {
+		this.writeLog({
+			level: 'warn',
+			timestamp: moment().format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+			...message,
+		});
+	}
+
+	debug(message: Record<string, any>) {
+		this.writeLog({
+			level: 'debug',
+			timestamp: moment().format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+			...message,
+		});
+	}
+
+	verbose(message: Record<string, any>) {
+		this.writeLog({
+			level: 'verbose',
+			timestamp: moment().format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+			...message,
+		});
+	}
+}

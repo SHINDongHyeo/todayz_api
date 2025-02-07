@@ -1,79 +1,44 @@
 import {
 	CallHandler,
 	ExecutionContext,
-	HttpException,
 	Injectable,
 	NestInterceptor,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-import logger from '../logger/logging.logger';
+import moment from 'moment-timezone';
+import { Observable, tap } from 'rxjs';
+import { CustomLogger } from '../logger/logging.logger';
 
 @Injectable()
-class LoggingInterceptor implements NestInterceptor {
-	// eslint-disable-next-line class-methods-use-this
+export class LoggingInterceptor implements LoggingInterceptor {
+	private readonly logger = new CustomLogger();
+
 	intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-		const requestTime = Date.now();
 		const request = context.switchToHttp().getRequest();
+		const { method, url, headers, body, ip } = request;
 
-		logger.info({
-			level: 'info',
-			method: request.method,
-			headers: request.headers,
-			url: request.url,
-			query: request.query,
-			body: request.body,
-			ip: request.ip,
-		});
+		const requestLog = {
+			method,
+			event: 'request',
+			url,
+			ip,
+			headers,
+			body,
+		};
 
-		return next
-			.handle()
-			.pipe(
-				tap((data: any) => {
-					const responseTime = Date.now();
-					const response = context.switchToHttp().getResponse();
+		this.logger.log(requestLog); // 요청 로그 기록
 
-					logger.info({
-						level: 'info',
-						elapsedTime: responseTime - requestTime,
-						statusCode: response.statusCode,
-						url: request.url,
-						data,
-						headers: response.getHeaders(),
-						ip: request.ip,
-					});
-				}),
-			)
-			.pipe(
-				catchError((error) => {
-					if (error instanceof HttpException) {
-						logger.error({
-							level: 'error',
-							statusCode: error.getStatus(),
-							errorMessage: error.message || 'HttpException',
-							url: request.url,
-							headers: request.headers,
-							query: request.query,
-							body: request.body,
-							ip: request.ip,
-						});
-					} else {
-						logger.error({
-							level: 'error',
-							statusCode: error.statusCode || 500,
-							errorMessage:
-								error.message || 'Unhandled error message',
-							url: request.url,
-							headers: request.headers,
-							query: request.query,
-							body: request.body,
-							ip: request.ip,
-						});
-					}
-					throw error;
-				}),
-			);
+		return next.handle().pipe(
+			tap((response) => {
+				const responseLog = {
+					method,
+					event: 'response',
+					url,
+					status: context.switchToHttp().getResponse().statusCode,
+					response,
+				};
+
+				this.logger.log(responseLog); // 응답 로그 기록
+			}),
+		);
 	}
 }
-
-export default LoggingInterceptor;
