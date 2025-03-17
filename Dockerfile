@@ -8,4 +8,6 @@ RUN yarn install
 
 EXPOSE 3000
 
-CMD ["NODE_ENV=production", "node", "-r", "./.pnp.cjs", "dist/main.js"]
+ENV NODE_ENV=production
+
+CMD ["node", "-r", "./.pnp.cjs", "dist/main.js"]
