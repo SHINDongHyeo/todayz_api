@@ -6,8 +6,10 @@ COPY . .
 
 RUN yarn install
 
+RUN yarn build
+
 EXPOSE 3000
 
 ENV NODE_ENV=production
 
-# CMD ["node", "-r", "./.pnp.cjs", "dist/main.js"]
+CMD ["node", "-r", "./.pnp.cjs", "dist/main.js"]
