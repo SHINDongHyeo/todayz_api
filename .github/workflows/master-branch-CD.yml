@@ -48,5 +48,6 @@ jobs:
                       while ! curl -s http://localhost:3000/post/test; do
                         echo "Waiting for API-1 to be ready..."
                         sleep 5
+                      done
                       docker compose restart api-2
                       docker image prune -f
