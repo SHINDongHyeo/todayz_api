@@ -116,7 +116,8 @@ export class DebateChatGateway
 		}
 	}
 
-	@SubscribeMessage('leave')
+	// @SubscribeMessage('leave')
+	// NOTE: handleDisconnect와 중복되어 두 번 나감 처리되는중. 일단 handleDisconnect로만 처리되게 수정
 	async handleLeave(
 		@MessageBody()
 		payload: { userId: number; roomId: string },
