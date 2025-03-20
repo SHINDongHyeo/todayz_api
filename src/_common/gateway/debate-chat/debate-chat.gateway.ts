@@ -116,8 +116,8 @@ export class DebateChatGateway
 		}
 	}
 
-	// @SubscribeMessage('leave')
 	// NOTE: handleDisconnect와 중복되어 두 번 나감 처리되는중. 일단 handleDisconnect로만 처리되게 수정
+	@SubscribeMessage('leave')
 	async handleLeave(
 		@MessageBody()
 		payload: { userId: number; roomId: string },
@@ -136,7 +136,7 @@ export class DebateChatGateway
 			const userCount = users.length;
 			await this.debateService.updateDiscussantCount(
 				Number(roomId),
-				userCount - 1,
+				userCount,
 			);
 
 			const usersInRoom = Array.from(
