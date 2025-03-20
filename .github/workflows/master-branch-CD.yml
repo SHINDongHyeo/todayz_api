@@ -43,11 +43,10 @@ jobs:
                   key: ${{ secrets.EC2_PRIVATE_KEY }}
                   port: 22
                   script: |
-                      docker pull shindong3/backend-main:latest
-                      docker-compose up -d
-                      # docker-compose up -d --build --no-cache api-1
-                      # while ! curl -s http://localhost:3000/health; do
-                      #   echo "Waiting for API-1 to be ready..."
-                      #   sleep 5
-                      # done
-                      # docker-compose up -d --build --no-cache api-2
+                      docker pull shindong3/backend-main:latest                      
+                      docker compose restart api-1
+                      while ! curl -s http://localhost:3000/post/test; do
+                        echo "Waiting for API-1 to be ready..."
+                        sleep 5
+                      docker compose restart api-2
+                      docker image prune -f
