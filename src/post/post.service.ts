@@ -58,16 +58,8 @@ export class PostService {
 	) {}
 
 	// test
-	async test(testParam: string) {
-		console.log('setTimeout start');
-		setTimeout(async () => {
-			console.log('setTimeout 실행됨');
-		}, 0);
-		console.log('setTimeout end');
-
-		const testValue = await this.redisService.scanValue(testParam);
-		console.log(testValue);
-		return testValue;
+	async test() {
+		return 'test success!';
 	}
 
 	// 포스트
