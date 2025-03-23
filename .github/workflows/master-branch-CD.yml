@@ -44,10 +44,6 @@ jobs:
                   port: 22
                   script: |
                       docker pull shindong3/backend-main:latest                      
-                      docker compose restart api-1
-                      while ! curl -s http://localhost:3000/post/test; do
-                        echo "Waiting for API-1 to be ready..."
-                        sleep 5
-                      done
-                      docker compose restart api-2
+                      docker-compose down
+                      docker-compose up -d
                       docker image prune -f
