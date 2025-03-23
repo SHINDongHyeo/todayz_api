@@ -6,7 +6,10 @@ COPY . .
 
 RUN yarn install
 
-# 여러 컨테이너 실행으로 컨테이너마다 다른 포트 사용하게 수정
-# EXPOSE 3000
+RUN yarn build
 
-CMD ["NODE_ENV=development", "node", "-r", "./.pnp.cjs", "dist/main.js"]
+EXPOSE 3000
+
+ENV NODE_ENV=production
+
+CMD ["node", "-r", "./.pnp.cjs", "dist/main.js"]

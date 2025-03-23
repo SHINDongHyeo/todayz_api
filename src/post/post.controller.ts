@@ -36,8 +36,8 @@ export class PostController {
 
 	// 테스트용
 	@Get('test')
-	async test(@Query('testParam') testParam: string) {
-		return await this.postService.test(testParam);
+	async test() {
+		return await this.postService.test();
 	}
 
 	// 게시물
