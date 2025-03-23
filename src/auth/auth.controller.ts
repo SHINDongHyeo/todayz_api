@@ -7,15 +7,6 @@ import { ReissueJwtReq, SignInReq, SignInRes, SignUpReq } from './dto/auth.dto';
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
-	@Get('test')
-	async test() {
-		return this.authService.signUp(
-			'1234',
-			UserSocialProvider.GOOGLE,
-			'123@test.com',
-		);
-	}
-
 	@Post('jwt/reissue')
 	async reissueJwt(@Body('refreshToken') refreshToken: string) {
 		return this.authService.reissueJwt(refreshToken);
