@@ -146,14 +146,41 @@ export class PostService {
 				return JSON.parse(cachedData);
 			}
 
-			const [posts, totalCount] = await this.postRepository.findAndCount({
-				order: {
-					createdAt: 'DESC',
-				},
-				relations: ['tags'],
-				take: 10,
-				skip: offset,
-			});
+			const posts = await this.postRepository
+				.createQueryBuilder('post')
+				.innerJoin(
+					(qb) =>
+						qb
+							.select('id')
+							.from(Post, 'post')
+							.orderBy('post.id', 'DESC')
+							.limit(10)
+							.offset(offset),
+					'latest_posts',
+					'latest_posts.id = post.id',
+				)
+				.leftJoin('post.tags', 't')
+				.leftJoin('post.category', 'c')
+				.leftJoin('post.subcategory', 's')
+				.leftJoin('post.user', 'u')
+				.select([
+					'post.id AS post_id',
+					'post.title AS post_title',
+					'post.createdAt AS post_createdAt',
+					't.id AS t_id',
+					't.name AS t_name',
+					'c.id AS c_id',
+					'c.name AS c_name',
+					's.id AS s_id',
+					's.name AS s_name',
+					'u.id AS u_id',
+					'u.nickname AS u_nickname',
+				])
+				.orderBy('post.createdAt', 'DESC')
+				.getRawMany();
+			const totalCount = await this.postRepository
+				.createQueryBuilder('post')
+				.getCount();
 
 			const postsResult = plainToInstance(FindPostMinRes, posts);
 			let result = {
