@@ -139,12 +139,12 @@ export class PostService {
 	async findPostsLatest(offset: number = 0) {
 		try {
 			// 메모리 캐시 먼저 확인
-			const cachedData = await this.redisService.getValue(
-				`posts:${offset}`,
-			);
-			if (cachedData) {
-				return JSON.parse(cachedData);
-			}
+			// const cachedData = await this.redisService.getValue(
+			// 	`posts:${offset}`,
+			// );
+			// if (cachedData) {
+			// 	return JSON.parse(cachedData);
+			// }
 
 			const posts = await this.postRepository
 				.createQueryBuilder('post')
@@ -159,25 +159,13 @@ export class PostService {
 					'latest_posts',
 					'latest_posts.id = post.id',
 				)
-				.leftJoin('post.tags', 't')
-				.leftJoin('post.category', 'c')
-				.leftJoin('post.subcategory', 's')
-				.leftJoin('post.user', 'u')
-				.select([
-					'post.id AS post_id',
-					'post.title AS post_title',
-					'post.createdAt AS post_createdAt',
-					't.id AS t_id',
-					't.name AS t_name',
-					'c.id AS c_id',
-					'c.name AS c_name',
-					's.id AS s_id',
-					's.name AS s_name',
-					'u.id AS u_id',
-					'u.nickname AS u_nickname',
-				])
+				.leftJoinAndSelect('post.tags', 't')
+				.leftJoinAndSelect('post.category', 'c')
+				.leftJoinAndSelect('post.subcategory', 's')
+				.leftJoinAndSelect('post.user', 'u')
 				.orderBy('post.createdAt', 'DESC')
-				.getRawMany();
+				.getMany();
+
 			const totalCount = await this.postRepository
 				.createQueryBuilder('post')
 				.getCount();
