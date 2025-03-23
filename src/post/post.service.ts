@@ -139,12 +139,12 @@ export class PostService {
 	async findPostsLatest(offset: number = 0) {
 		try {
 			// 메모리 캐시 먼저 확인
-			// const cachedData = await this.redisService.getValue(
-			// 	`posts:${offset}`,
-			// );
-			// if (cachedData) {
-			// 	return JSON.parse(cachedData);
-			// }
+			const cachedData = await this.redisService.getValue(
+				`posts:${offset}`,
+			);
+			if (cachedData) {
+				return JSON.parse(cachedData);
+			}
 
 			const posts = await this.postRepository
 				.createQueryBuilder('post')
