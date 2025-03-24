@@ -184,21 +184,44 @@ export class PostService {
 		subcategoryId?: number,
 	) {
 		try {
-			let whereConditions: any = {};
+			const posts = await this.postRepository
+				.createQueryBuilder('post')
+				.innerJoin(
+					(qb) =>
+						qb
+							.select('id')
+							.from(Post, 'post')
+							.where('post.categoryId = :categoryId', {
+								categoryId,
+							})
+							.andWhere(
+								subcategoryId
+									? 'post.subcategoryId = :subcategoryId'
+									: '1 = 1',
+								{ subcategoryId },
+							)
+							.orderBy('post.id', 'DESC')
+							.limit(10)
+							.offset(offset),
+					'latest_posts',
+					'latest_posts.id = post.id',
+				)
+				.leftJoinAndSelect('post.tags', 't')
+				.leftJoinAndSelect('post.category', 'c')
+				.leftJoinAndSelect('post.subcategory', 's')
+				.leftJoinAndSelect('post.user', 'u')
+				.orderBy('post.createdAt', 'DESC')
+				.getMany();
 
-			whereConditions.categoryId = categoryId;
-			if (subcategoryId) {
-				whereConditions.subcategoryId = subcategoryId;
-			}
-			const [posts, totalCount] = await this.postRepository.findAndCount({
-				where: whereConditions,
-				order: {
-					createdAt: 'DESC',
-				},
-				relations: ['tags'],
-				take: 10,
-				skip: offset,
-			});
+			const totalCount = await this.postRepository
+				.createQueryBuilder('post')
+				.where('post.categoryId = :categoryId', {
+					categoryId,
+				})
+				.andWhere('post.subcategoryId = :subcategoryId', {
+					subcategoryId: subcategoryId || null,
+				})
+				.getCount();
 
 			const postsResult = plainToInstance(FindPostMinRes, posts);
 			let result = {
@@ -676,7 +699,7 @@ export class PostService {
 		try {
 			const posts = await this.postRepository
 				.createQueryBuilder('post')
-				.where('post.userId = :userId', { userId: 1 })
+				.where(`post.userId = ${userId}`)
 				.orderBy('post.id', 'DESC')
 				.take(50)
 				.skip(offset)
