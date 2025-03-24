@@ -234,28 +234,82 @@ export class AuthService {
 		provider: UserSocialProvider,
 		email: string,
 	) {
-		// HACK: 닉네임 중복 확인 로직. 닉네임 중복이 많이 일어날 경우 수정 필요.
-		// 기본적으로 중복되지 않을 확률 높은 랜덤 닉네임 반환하므로, 최대 3번 동안 중복되지 않게 랜덤 닉네임 생성 시도
 		let user: User;
-		for (let i = 0; i < 3; i++) {
-			try {
-				const nickname = await newRandomNick();
-				user = await this.userService.createUser(
+		let nickname: string;
+		try {
+			nickname = await newRandomNick();
+
+			// 닉네임 중복 방지
+			user = await this.userService.createUser(
+				socialId,
+				provider,
+				email,
+				nickname,
+			);
+		} catch (error) {
+			if (
+				error.code === 'ER_DUP_ENTRY' &&
+				error.sqlMessage.includes('user.IDX_e2364281027b926b879fa2fa1e')
+			) {
+				user = await this.retrySignUp(
 					socialId,
 					provider,
 					email,
 					nickname,
+					1,
 				);
-				break;
-			} catch (error) {
-				if (i == 2) {
-					throw new InternalServerErrorException(
-						'랜덤 닉네임 생성 중 에러 발생',
-					);
-				}
+			} else {
+				throw new InternalServerErrorException(
+					'랜덤 닉네임 생성 중 에러 발생',
+				);
 			}
 		}
 		return await this.issueJwt(user.id, user.email);
+	}
+
+	// 닉네임 중복 시 뒤에 숫자 붙여서 재생성
+	async retrySignUp(
+		socialId: string,
+		provider: UserSocialProvider,
+		email: string,
+		nickname: string,
+		cnt: number, // 무한하게 호출될 위험성으로 5번만 재시도하도록
+	) {
+		let user: User;
+		if (cnt >= 5) {
+			throw new InternalServerErrorException(
+				'랜덤 닉네임 생성 중 에러 발생',
+			);
+		}
+		try {
+			const randomNumber = String(
+				Math.floor(Math.random() * 90000) + 10000,
+			);
+			user = await this.userService.createUser(
+				socialId,
+				provider,
+				email,
+				nickname + '-' + randomNumber,
+			);
+		} catch (error) {
+			if (
+				error.code === 'ER_DUP_ENTRY' &&
+				error.sqlMessage.includes('user.IDX_e2364281027b926b879fa2fa1e')
+			) {
+				user = await this.retrySignUp(
+					socialId,
+					provider,
+					email,
+					nickname,
+					cnt + 1,
+				);
+			} else {
+				throw new InternalServerErrorException(
+					'랜덤 닉네임 생성 중 에러 발생',
+				);
+			}
+		}
+		return user;
 	}
 
 	// 닉네임 중복 검사

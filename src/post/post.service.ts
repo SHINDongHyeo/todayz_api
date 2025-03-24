@@ -138,14 +138,6 @@ export class PostService {
 
 	async findPostsLatest(offset: number = 0) {
 		try {
-			// 메모리 캐시 먼저 확인
-			const cachedData = await this.redisService.getValue(
-				`posts:${offset}`,
-			);
-			if (cachedData) {
-				return JSON.parse(cachedData);
-			}
-
 			const posts = await this.postRepository
 				.createQueryBuilder('post')
 				.innerJoin(
@@ -180,11 +172,6 @@ export class PostService {
 				['isFiveNextPageExists']: totalCount - (offset + 50) > 0,
 			};
 
-			// 메모리 캐시에 저장
-			await this.redisService.setValue(
-				`posts:${offset}`,
-				JSON.stringify(result),
-			);
 			return result;
 		} catch (error) {
 			throw error;
@@ -681,14 +668,19 @@ export class PostService {
 		}
 	}
 
-	async getPostsOfUser(reqUser: JwtPayload, userId: number) {
+	async getPostsOfUser(
+		reqUser: JwtPayload,
+		userId: number,
+		offset: number = 0,
+	) {
 		try {
-			const posts = await this.postRepository.find({
-				where: { user: { id: userId } },
-				order: {
-					createdAt: 'DESC',
-				},
-			});
+			const posts = await this.postRepository
+				.createQueryBuilder('post')
+				.where('post.userId = :userId', { userId: 1 })
+				.orderBy('post.id', 'DESC')
+				.take(50)
+				.skip(offset)
+				.getMany();
 
 			return posts;
 		} catch (error) {

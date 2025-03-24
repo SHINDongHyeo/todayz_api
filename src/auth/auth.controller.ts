@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { UserSocialProvider } from 'src/user/interfaces/user.interface';
 import { AuthService } from './auth.service';
 import { ReissueJwtReq, SignInReq, SignInRes, SignUpReq } from './dto/auth.dto';
 

@@ -3569,7 +3569,7 @@ __metadata:
     moment-timezone: ^0.5.47
     mysql2: ^3.11.4
     prettier: ^3.0.0
-    random-korean-nickname: ^1.0.14
+    random-korean-nickname: ^1.1.3
     reflect-metadata: ^0.2.0
     rxjs: ^7.8.1
     socket.io: ^4.8.1
@@ -4626,6 +4626,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cross-env@npm:^7.0.3":
+  version: 7.0.3
+  resolution: "cross-env@npm:7.0.3"
+  dependencies:
+    cross-spawn: ^7.0.1
+  bin:
+    cross-env: src/bin/cross-env.js
+    cross-env-shell: src/bin/cross-env-shell.js
+  checksum: 26f2f3ea2ab32617f57effb70d329c2070d2f5630adc800985d8b30b56e8bf7f5f439dd3a0358b79cee6f930afc23cf8e23515f17ccfb30092c6b62c6b630a79
+  languageName: node
+  linkType: hard
+
 "cross-spawn@npm:^7.0.0, cross-spawn@npm:^7.0.2, cross-spawn@npm:^7.0.3":
   version: 7.0.5
   resolution: "cross-spawn@npm:7.0.5"
@@ -4634,6 +4646,17 @@ __metadata:
     shebang-command: ^2.0.0
     which: ^2.0.1
   checksum: 55c50004cb6bbea3649784caac6e7b8ddd03fa8c1e14dbd5a1f15896708378006eb7526a52a0f48770c768c9b8aed48a5888eb8e785ff59ff7749e74f66cd96b
+  languageName: node
+  linkType: hard
+
+"cross-spawn@npm:^7.0.1":
+  version: 7.0.6
+  resolution: "cross-spawn@npm:7.0.6"
+  dependencies:
+    path-key: ^3.1.0
+    shebang-command: ^2.0.0
+    which: ^2.0.1
+  checksum: 8d306efacaf6f3f60e0224c287664093fa9185680b2d195852ba9a863f85d02dcc737094c6e512175f8ee0161f9b87c73c6826034c2422e39de7d6569cf4503b
   languageName: node
   linkType: hard
 
@@ -8970,10 +8993,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"random-korean-nickname@npm:^1.0.14":
-  version: 1.0.14
-  resolution: "random-korean-nickname@npm:1.0.14"
-  checksum: 9153abf1afbd885e58bbf358712e5dd20eacffc8104ccc580a8656a47d0e4a077f8fc3159a4c08f63877a3047193f0fb9152024c47576d1e6332e0565920d8e8
+"random-korean-nickname@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "random-korean-nickname@npm:1.1.1"
+  checksum: b35247bdd6f757c8e1a9845ad1eef3c99a7859a114c1c044bb8ef2613ecec215a3db3a25102373bcecfac80a8b07ca80bfc8a599f1b32ceca3751ebcfe4f034e
+  languageName: node
+  linkType: hard
+
+"random-korean-nickname@npm:^1.1.3":
+  version: 1.1.3
+  resolution: "random-korean-nickname@npm:1.1.3"
+  dependencies:
+    cross-env: ^7.0.3
+    random-korean-nickname: ^1.1.1
+  checksum: 1f892b916d63f7aeffea8ee672e09b9f2733fa137a60d5ed9e8dfcf54b873c67aed48897b0dfaf407cc4190ee7c039e4214134909d43fad6950b1eda9a7437fa
   languageName: node
   linkType: hard
 

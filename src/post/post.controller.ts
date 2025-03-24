@@ -160,8 +160,13 @@ export class PostController {
 	async getPostsOfUser(
 		@Req() req: any,
 		@Param('id', ParseIntPipe) id: number,
+		@Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
 	) {
-		const posts = await this.postService.getPostsOfUser(req.user, id);
+		const posts = await this.postService.getPostsOfUser(
+			req.user,
+			id,
+			offset,
+		);
 		return plainToInstance(FindPostMinRes, posts);
 	}
 
