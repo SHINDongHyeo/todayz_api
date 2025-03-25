@@ -13,7 +13,14 @@ import { UserSocialProvider } from 'src/user/interfaces/user.interface';
 import { newRandomNick } from 'random-korean-nickname';
 import { User } from 'src/user/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
-import { IssueJWTRes } from './dto/auth.dto';
+import {
+	IssueJwtReq,
+	IssueJWTRes,
+	ReissueJwtReq,
+	SignInReq,
+	ValidateNicknameReq,
+	ValidateNicknameRes,
+} from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +34,9 @@ export class AuthService {
 	) {}
 
 	// JWT 발급
-	private async issueJwt(id: number, email: string): Promise<IssueJWTRes> {
+	private async issueJwt(issueJwtReq: IssueJwtReq): Promise<IssueJWTRes> {
+		const { id, email } = issueJwtReq;
+
 		const payload: JwtPayload = {
 			id: id,
 			email: email,
@@ -44,11 +53,12 @@ export class AuthService {
 	}
 
 	// JWT 재발급
-	async reissueJwt(refreshToken: string): Promise<IssueJWTRes> {
+	async reissueJwt(reissueJwtReq: ReissueJwtReq): Promise<IssueJWTRes> {
+		const { refreshToken } = reissueJwtReq;
 		try {
 			const decoded = this.refreshTokenJwtService.verify(refreshToken);
 
-			return this.issueJwt(decoded.id, decoded.email);
+			return this.issueJwt({ id: decoded.id, email: decoded.email });
 		} catch (error) {
 			throw new UnauthorizedException(
 				'refresh token이 유효하지 않습니다',
@@ -57,10 +67,8 @@ export class AuthService {
 	}
 
 	// 로그인
-	async signIn(
-		token: string,
-		provider: UserSocialProvider,
-	): Promise<IssueJWTRes> {
+	async signIn(signInReq: SignInReq): Promise<IssueJWTRes> {
+		let { token, provider } = signInReq;
 		let payload: { socialId: string; email: string } & Record<
 			string,
 			unknown
@@ -75,7 +83,7 @@ export class AuthService {
 						provider,
 					);
 
-				return await this.issueJwt(user.id, user.email);
+				return await this.issueJwt({ id: user.id, email: user.email });
 			} catch (error) {
 				// 회원가입 진행
 				if (error instanceof NotFoundException) {
@@ -103,7 +111,7 @@ export class AuthService {
 				return await this.verifyGoogle(token);
 			default:
 				throw new BadRequestException(
-					'지원하지 않는 소셜 로그인 제공자입니다',
+					'지원하지 않는 소셜 로그인 공급자입니다',
 				);
 		}
 	}
@@ -149,7 +157,7 @@ export class AuthService {
 	}
 
 	// 카카오 인증
-	async verifyKakao(token: string) {
+	private async verifyKakao(token: string) {
 		try {
 			const tokenForApi = await this.getTokenForApiKakao(token);
 			const accessToken = tokenForApi['access_token'];
@@ -174,8 +182,8 @@ export class AuthService {
 		}
 	}
 
+	// 구글 api용 access token 요청
 	private async getTokenForApiGoogle(token: string) {
-		// 구글 api용 access token 요청
 		const tokenResponse = await fetch(
 			'https://oauth2.googleapis.com/token',
 			{
@@ -199,8 +207,8 @@ export class AuthService {
 		return tokenResponse.json();
 	}
 
+	// 구글 api 활용해 개인 정보 요청
 	private async getUserInfoGoogle(accessToken: string) {
-		// 구글 api 활용해 개인 정보 요청
 		const userInfoResponse = await fetch(
 			'https://www.googleapis.com/userinfo/v2/me',
 			{
@@ -217,7 +225,7 @@ export class AuthService {
 	}
 
 	// 구글 인증
-	async verifyGoogle(token: string) {
+	private async verifyGoogle(token: string) {
 		try {
 			const tokenForApi = await this.getTokenForApiGoogle(token);
 			const accessToken = tokenForApi['access_token'];
@@ -256,7 +264,7 @@ export class AuthService {
 				nickname,
 			);
 
-			return await this.issueJwt(user.id, user.email);
+			return await this.issueJwt({ id: user.id, email: user.email });
 		} catch (error) {
 			// 닉네임 중복 시
 			if (
@@ -273,7 +281,7 @@ export class AuthService {
 	}
 
 	// 닉네임 중복 시 뒤에 숫자 붙여서 재생성
-	async retrySignUp(
+	private async retrySignUp(
 		socialId: string,
 		provider: UserSocialProvider,
 		email: string,
@@ -299,7 +307,7 @@ export class AuthService {
 				nickname + '-' + randomNumber,
 			);
 
-			return await this.issueJwt(user.id, user.email);
+			return await this.issueJwt({ id: user.id, email: user.email });
 		} catch (error) {
 			if (
 				error.code === 'ER_DUP_ENTRY' &&
@@ -321,7 +329,10 @@ export class AuthService {
 	}
 
 	// 닉네임 중복 검사
-	async validateNickname(nickname: string) {
+	async validateNickname(
+		validateNicknameReq: ValidateNicknameReq,
+	): Promise<ValidateNicknameRes> {
+		const { nickname } = validateNicknameReq;
 		try {
 			// 닉네임 사용할 수 없는 경우(유저 존재 O)
 			await this.userService.findUserByNickname(nickname);

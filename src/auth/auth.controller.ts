@@ -6,6 +6,7 @@ import {
 	ReissueJwtReq,
 	SignInReq,
 	ValidateNicknameReq,
+	ValidateNicknameRes,
 } from './dto/auth.dto';
 
 @Controller('auth')
@@ -16,19 +17,18 @@ export class AuthController {
 	async reissueJwt(
 		@Body() reissueJwtReq: ReissueJwtReq,
 	): Promise<IssueJWTRes> {
-		const { refreshToken } = reissueJwtReq;
-		return this.authService.reissueJwt(refreshToken);
+		return this.authService.reissueJwt(reissueJwtReq);
 	}
 
 	@Post('sign-in')
 	async signIn(@Body() signInReq: SignInReq): Promise<IssueJWTRes> {
-		const { token, provider } = signInReq;
-		return this.authService.signIn(token, provider);
+		return this.authService.signIn(signInReq);
 	}
 
 	@Get('nickname/validate')
-	async validateNickname(@Query() validateNicknameReq: ValidateNicknameReq) {
-		const { nickname } = validateNicknameReq;
-		return this.authService.validateNickname(nickname);
+	async validateNickname(
+		@Query() validateNicknameReq: ValidateNicknameReq,
+	): Promise<ValidateNicknameRes> {
+		return this.authService.validateNickname(validateNicknameReq);
 	}
 }

@@ -1,4 +1,5 @@
 import {
+	IsBoolean,
 	IsDate,
 	IsEmail,
 	IsEnum,
@@ -7,6 +8,7 @@ import {
 	IsNumber,
 	IsString,
 } from 'class-validator';
+import { BlockList } from 'net';
 import {
 	UserRank,
 	UserSocialProvider,
@@ -35,6 +37,16 @@ export class ValidateNicknameReq {
 	nickname: string;
 }
 
+export class IssueJwtReq {
+	@IsNumber()
+	@IsNotEmpty()
+	id: number;
+
+	@IsEmail()
+	@IsNotEmpty()
+	email: string;
+}
+
 // Res
 export class IssueJWTRes {
 	@IsString()
@@ -52,4 +64,10 @@ export class IssueJWTRes {
 	@IsEmail()
 	@IsNotEmpty()
 	email: string;
+}
+
+export class ValidateNicknameRes {
+	@IsBoolean()
+	@IsNotEmpty()
+	canUse: boolean;
 }
