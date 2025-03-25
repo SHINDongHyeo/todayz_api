@@ -57,7 +57,10 @@ export class AuthService {
 	}
 
 	// 로그인
-	async signIn(token: string, provider: UserSocialProvider) {
+	async signIn(
+		token: string,
+		provider: UserSocialProvider,
+	): Promise<IssueJWTRes> {
 		let payload: { socialId: string; email: string } & Record<
 			string,
 			unknown
@@ -71,6 +74,7 @@ export class AuthService {
 						payload.socialId,
 						provider,
 					);
+
 				return await this.issueJwt(user.id, user.email);
 			} catch (error) {
 				// 회원가입 진행
