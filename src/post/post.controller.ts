@@ -15,6 +15,7 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { plainToInstance } from 'class-transformer';
 import { AuthGuard } from 'src/_common/guards/jwt/auth.guard';
+import { OptionalAuthGuard } from 'src/_common/guards/jwt/optionalAuth.guard';
 import {
 	CreateCommentReq,
 	FindCommentsRes,
@@ -158,19 +159,14 @@ export class PostController {
 	// @UseGuards(AuthGuard)
 	@Get('user/:id')
 	async getPostsOfUser(
-		@Req() req: any,
 		@Param('id', ParseIntPipe) id: number,
 		@Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
 	) {
-		const posts = await this.postService.getPostsOfUser(
-			req.user,
-			id,
-			offset,
-		);
+		const posts = await this.postService.getPostsOfUser(id, offset);
 		return plainToInstance(FindPostMinRes, posts);
 	}
 
-	// @UseGuards(AuthGuard)
+	@UseGuards(OptionalAuthGuard)
 	@Get(':id/comment')
 	async findComments(@Req() req: any, @Param('id', ParseIntPipe) id: number) {
 		const comments = await this.postService.findComments(req.user, id);
@@ -239,7 +235,7 @@ export class PostController {
 		return;
 	}
 
-	// @UseGuards(AuthGuard)
+	@UseGuards(OptionalAuthGuard)
 	@Get(':id')
 	async findPost(@Req() req: any, @Param('id', ParseIntPipe) id: number) {
 		return plainToInstance(

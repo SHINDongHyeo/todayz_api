@@ -691,11 +691,7 @@ export class PostService {
 		}
 	}
 
-	async getPostsOfUser(
-		reqUser: JwtPayload,
-		userId: number,
-		offset: number = 0,
-	) {
+	async getPostsOfUser(userId: number, offset: number = 0) {
 		try {
 			const posts = await this.postRepository
 				.createQueryBuilder('post')
