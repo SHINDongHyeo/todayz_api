@@ -59,7 +59,10 @@ export class PostService {
 
 	// test
 	async test() {
-		return 'test success!';
+		const tags = await this.tagRepository.find({
+			where: { id: 7 },
+		});
+		return tags[0];
 	}
 
 	// 포스트
@@ -97,11 +100,11 @@ export class PostService {
 			let tags: Tag[] = [];
 			for (const rawTag of rawTags) {
 				if (rawTag.id === -1) {
-					const tag = await this.tagRepository.find({
+					const tagResults = await this.tagRepository.find({
 						where: { name: rawTag.name },
-					})[0];
-					if (tag) {
-						tags.push(tag);
+					});
+					if (tagResults[0]) {
+						tags.push(tagResults[0]);
 					} else {
 						const newTag = this.tagRepository.create({
 							name: rawTag.name,
@@ -111,10 +114,10 @@ export class PostService {
 						tags.push(newTagResponse);
 					}
 				} else {
-					const tag = await this.tagRepository.find({
+					const tagResults = await this.tagRepository.find({
 						where: { id: rawTag.id },
-					})[0];
-					tags.push(tag);
+					});
+					tags.push(tagResults[0]);
 				}
 			}
 
