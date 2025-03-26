@@ -7,7 +7,6 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { PostModule } from './post/post.module';
 import { DebateModule } from './debate/debate.module';
-import { SearchModule } from './search/search.module';
 import { InquiryModule } from './inquiry/inquiry.module';
 import { ReportModule } from './report/report.module';
 import { DebateChatGateway } from './_common/gateway/debate-chat/debate-chat.gateway';
@@ -27,7 +26,6 @@ import { AppThrottlerModule } from './_common/throttler/throttler.module';
 		UserModule,
 		PostModule,
 		DebateModule,
-		SearchModule,
 		InquiryModule,
 		ReportModule,
 		NotificationModule,
