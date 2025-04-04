@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis'; // ioredis를 사용
 
 @Injectable()
 export class RedisService {
 	private redisClient: Redis;
 
-	constructor() {
+	constructor(private readonly configService: ConfigService) {
 		this.redisClient = new Redis({
-			host: 'redis', // Redis 서버 호스트
-			port: 6379, // Redis 서버 포트
+			host: this.configService.get<string>('REDIS_HOST'),
+			port: this.configService.get<number>('REDIS_PORT'),
 			// password: 'yourpassword', // 필요시 비밀번호 추가
 		});
 	}
