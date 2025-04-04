@@ -8,7 +8,8 @@ import { LoggingInterceptor } from './_common/interceptor/logging.interceptor';
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 	const configService = app.get(ConfigService);
-	const appPort = configService.get<number>('APP_PORT');
+	// const appPort = configService.get<number>('APP_PORT');
+	const appPort = 3000;
 
 	// Log Interceptor
 	app.useGlobalInterceptors(new LoggingInterceptor());
