@@ -9,11 +9,11 @@ import * as Joi from 'joi';
 			envFilePath: `.env.${process.env.NODE_ENV}`,
 			validationSchema: Joi.object({
 				// 애플리케이션 포트
-				APP_PORT: Joi.number().default(3000),
+				APP_PORT: Joi.number().default(3000).strict(false),
 
 				// 데이터베이스
 				DB_HOST: Joi.string().required(),
-				DB_PORT: Joi.number().default(3306),
+				DB_PORT: Joi.number().default(3306).strict(false),
 				DB_USERNAME: Joi.string().required(),
 				DB_PASSWORD: Joi.string().required(),
 				DB_DATABASE: Joi.string().required(),
